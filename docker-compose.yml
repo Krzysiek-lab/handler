@@ -1,0 +1,43 @@
+version: '3.0'
+
+networks:
+  web-net:
+#    internal: true
+
+
+services:
+  databaseMongo:
+    container_name: mongodb-sample
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - web-net
+    environment:
+      MONGO_INITDB_DATABASE: tutorial
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+  MongoTutorial:
+    container_name: app
+    depends_on:
+      - 'databaseMongo'
+    image: mongonew
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - web-net
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          memory: 3096M
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 2
+        max-size: 100m
